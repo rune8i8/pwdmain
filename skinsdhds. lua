@@ -1,0 +1,114 @@
+-- pwd.SKIN | Da Hood skin changer (local fixture) | TARGET = da hood
+local P,S,U = game:GetService("Players"), game:GetService("RunService"), game:GetService("UserInputService")
+local L,C,G = P.LocalPlayer, workspace.CurrentCamera, game:GetService("CoreGui")
+
+local function N(c,p,t) local o=Instance.new(c) for k,v in pairs(p or {}) do o[k]=v end o.Parent=t return o end
+
+-- weapons and skins (exactly as requested)
+local Weapons = {
+    {name="[Revolver]",        skins={{"Clear"},{"Shadow"},{"Valentine"},{"Luck"},{"Galaxy"},{"Electric"},{"Golden Age"}}},
+    {name="[Double-Barrel SG]",skins={{"Clear"},{"Galaxy"},{"Valentine"},{"Luck"},{"Electric"}}},
+    {name="[TacticalShotgun]", skins={{"Clear"},{"Galaxy"},{"Luck"},{"Valentine"},{"Electric"}}},
+    {name="[Shotgun]",         skins={{"Clear"},{"Red Death"},{"Luck"},{"Galaxy"}}},
+    {name="[Flamethrower]",    skins={{"Clear"},{"Valentine"},{"Electric"},{"Luck"}}},
+    {name="[RPG]",             skins={{"Clear"},{"Shadow"},{"Luck"}}},
+    {name="[Rifle]",           skins={{"Clear"},{"Galaxy"},{"Valentine"},{"Shadow"}}},
+    {name="[Silencer]",        skins={{"Clear"},{"Valentine"},{"Electric"}}},
+    {name="[Knife]",           skins={{"Clear"},{"Golden Age Tanto"}}}
+}
+
+local selected = { weapon = 1, skin = 1 }
+
+local T = {
+    bg=Color3.fromRGB(236,244,252), panel=Color3.fromRGB(255,255,255),
+    side=Color3.fromRGB(225,238,250), line=Color3.fromRGB(180,205,230),
+    text=Color3.fromRGB(120,150,180), textDim=Color3.fromRGB(160,185,210),
+    sel=Color3.fromRGB(170,190,205)
+}
+
+local gui = N("ScreenGui", {Name="pwd.SKIN", ResetOnSpawn=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling})
+pcall(function() gui.Parent = G end)
+if not gui.Parent then gui.Parent = L:WaitForChild("PlayerGui") end
+
+local main = N("Frame", {Name="Main", Size=UDim2.new(0,620,0,340), Position=UDim2.new(0.5,-310,0.5,-170), BackgroundColor3=T.bg, BorderSizePixel=0, Active=true, Draggable=true}, gui)
+N("UICorner", {CornerRadius=UDim.new(0,6)}, main)
+N("UIStroke", {Color=T.line, Thickness=1}, main)
+
+local title = N("Frame", {Size=UDim2.new(1,0,0,26), BackgroundColor3=T.panel, BorderSizePixel=0}, main)
+N("UICorner", {CornerRadius=UDim.new(0,6)}, title)
+N("TextLabel", {Text="  pwd.SKIN", BackgroundTransparency=1, Font=Enum.Font.Gotham, TextSize=12, TextColor3=T.text, TextXAlignment=Enum.TextXAlignment.Left, Size=UDim2.new(0.5,0,1,0)}, title)
+N("TextLabel", {Text="Skin Changer  ", BackgroundTransparency=1, Font=Enum.Font.Gotham, TextSize=10, TextColor3=T.textDim, TextXAlignment=Enum.TextXAlignment.Right, Size=UDim2.new(0.5,0,1,0), Position=UDim2.new(0.5,0,0,0)}, title)
+
+local side = N("Frame", {Size=UDim2.new(0,150,1,-26), Position=UDim2.new(0,0,0,26), BackgroundColor3=T.side, BorderSizePixel=0}, main)
+N("UIStroke", {Color=T.line, Thickness=1}, side)
+
+local content = N("Frame", {Size=UDim2.new(1,-150,1,-26), Position=UDim2.new(0,150,0,26), BackgroundColor3=T.panel, BorderSizePixel=0}, main)
+N("UIStroke", {Color=T.line, Thickness=1}, content)
+
+N("TextLabel", {Text="Hello, "..L.Name, BackgroundTransparency=1, Font=Enum.Font.Gotham, TextSize=13, TextColor3=T.text, TextXAlignment=Enum.TextXAlignment.Left, Position=UDim2.new(0,18,0,10), Size=UDim2.new(1,-36,0,18)}, content)
+local header = N("TextLabel", {Text="[Revolver]", BackgroundTransparency=1, Font=Enum.Font.Gotham, TextSize=12, TextColor3=T.text, TextXAlignment=Enum.TextXAlignment.Left, Position=UDim2.new(0,18,0,34), Size=UDim2.new(1,-36,0,18)}, content)
+N("Frame", {Size=UDim2.new(1,-36,0,1), Position=UDim2.new(0,18,0,54), BackgroundColor3=T.line, BorderSizePixel=0}, content)
+
+local listFrame = N("ScrollingFrame", {Size=UDim2.new(1,-36,1,-80), Position=UDim2.new(0,18,0,64), BackgroundTransparency=1, BorderSizePixel=0, ScrollBarThickness=2, CanvasSize=UDim2.new(0,0,0,0)}, content)
+
+local function clearList()
+    for _,v in ipairs(listFrame:GetChildren()) do v:Destroy() end
+end
+
+local function applySkin(weaponName, skinName)
+    _G.pwdSKIN = _G.pwdSKIN or {}
+    _G.pwdSKIN[weaponName] = skinName
+end
+
+local function buildSkins()
+    clearList()
+    local w = Weapons[selected.weapon]
+    header.Text = w.name
+    local y = 0
+
+    local dd = N("TextButton", {Text="[Select Skin] v", BackgroundColor3=T.side, TextColor3=T.text, Font=Enum.Font.Gotham, TextSize=11, BorderSizePixel=0, Size=UDim2.new(1,0,0,22), Position=UDim2.new(0,0,0,y)}, listFrame)
+    N("UICorner", {CornerRadius=UDim.new(0,4)}, dd)
+    y = y + 30
+
+    for i, skin in ipairs(w.skins) do
+        local label = skin[1]
+        local b = N("TextButton", {
+            Text=label, BackgroundColor3=(i==selected.skin) and T.sel or T.panel,
+            TextColor3=(i==selected.skin) and T.panel or T.textDim,
+            Font=Enum.Font.Gotham, TextSize=11, BorderSizePixel=0,
+            Size=UDim2.new(1,0,0,22), Position=UDim2.new(0,0,0,y)
+        }, listFrame)
+        N("UICorner", {CornerRadius=UDim.new(0,4)}, b)
+        N("UIStroke", {Color=T.line, Thickness=1}, b)
+        b.MouseButton1Click:Connect(function()
+            selected.skin = i
+            applySkin(w.name, label)
+            buildSkins()
+        end)
+        y = y + 28
+    end
+    listFrame.CanvasSize = UDim2.new(0,0,0,y+10)
+end
+
+local wy = 0
+local weaponButtons = {}
+for i, w in ipairs(Weapons) do
+    local b = N("TextButton", {
+        Text=w.name, BackgroundColor3=T.side, TextColor3=T.textDim,
+        Font=Enum.Font.Gotham, TextSize=11, BorderSizePixel=0,
+        Size=UDim2.new(1,-8,0,24), Position=UDim2.new(0,4,0,wy+4)
+    }, side)
+    N("UICorner", {CornerRadius=UDim.new(0,4)}, b)
+    b.MouseButton1Click:Connect(function()
+        selected.weapon = i
+        selected.skin = 1
+        for _, o in ipairs(weaponButtons) do o.BackgroundColor3 = T.side end
+        b.BackgroundColor3 = T.side
+        buildSkins()
+    end)
+    table.insert(weaponButtons, b)
+    wy = wy + 28
+end
+
+buildSkins()
+print("pwd.SKIN loaded")
